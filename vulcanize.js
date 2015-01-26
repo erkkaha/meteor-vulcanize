@@ -1,14 +1,32 @@
 var vulcan = Npm.require('vulcanize');
 var _ = Npm.require('underscore');
+var fs = Npm.require('fs');
+var rootPath = process.env.VULCANIZE_PATH || 'public';
 
 var handler = function(compileStep) {
   var importsHtml = compileStep.read().toString('utf8');
 
   if (process.env.VULCANIZE) {
     log('Vulcanizing imports...');
+    if(process.env.VULCANIZE_PATH){
+        if(fs.existsSync('public/components') && rootPath === fs.readlinkSync('public/components')){
+            fs.unlinkSync('public/components');
+        }
+        rootPath = rootPath.replace('/components', '');
+    }
     vulcanize(compileStep, importsHtml);
   } else {
     log('Adding all imports...');
+    if(process.env.VULCANIZE_PATH){
+        if (fs.existsSync('public/components')) {
+            if(rootPath !== fs.readlinkSync('public/components')){
+                log(rootPath + ' cannot be linked to public directory as public/components already exists');
+            }    
+        }
+        else{
+            fs.symlinkSync(rootPath, 'public/components', 'dir');
+        }
+    }
     addImports(compileStep, importsHtml);
   }
 
@@ -31,8 +49,9 @@ var vulcanize = function(compileStep, importsHtml) {
   vulcan.setOptions({
     inputSrc: importsHtml,
     outputHandler: vulcanOutputHandler,
-    abspath: 'public',
-    strip: true
+    abspath: rootPath,
+    strip: true,
+    inline: true
   }, function(error) {
     if (error) {
       log(error);
