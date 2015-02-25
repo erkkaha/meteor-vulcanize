@@ -1,7 +1,9 @@
 var vulcan = Npm.require('vulcanize');
 var _ = Npm.require('underscore');
 var fs = Npm.require('fs');
+var path = Npm.require('path');
 var rootPath = process.env.VULCANIZE_PATH || 'public';
+rootPath = path.resolve(rootPath);
 
 var handler = function(compileStep) {
   var importsHtml = compileStep.read().toString('utf8');
