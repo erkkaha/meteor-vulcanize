@@ -11,8 +11,8 @@ var handler = function(compileStep) {
   if (process.env.VULCANIZE) {
     log('Vulcanizing imports...');
     if(process.env.VULCANIZE_PATH){
-        if(fs.existsSync('public/components') && rootPath === fs.readlinkSync('public/components')){
-            fs.unlinkSync('public/components');
+        if(fs.existsSync(path.resolve('public/components')) && rootPath === fs.readlinkSync(path.resolve('public/components'))){
+            fs.unlinkSync(path.resolve('public/components'));
         }
         rootPath = rootPath.replace('/components', '');
     }
@@ -20,13 +20,13 @@ var handler = function(compileStep) {
   } else {
     log('Adding all imports...');
     if(process.env.VULCANIZE_PATH){
-        if (fs.existsSync('public/components')) {
-            if(rootPath !== fs.readlinkSync('public/components')){
+        if (fs.existsSync(path.resolve('public/components'))) {
+            if(rootPath !== fs.readlinkSync(path.resolve('public/components'))){
                 log(rootPath + ' cannot be linked to public directory as public/components already exists');
             }    
         }
         else{
-            fs.symlinkSync(rootPath, 'public/components', 'dir');
+            fs.symlinkSync(path.resolve(rootPath), path.resolve('public/components'), 'dir');
         }
     }
     addImports(compileStep, importsHtml);
